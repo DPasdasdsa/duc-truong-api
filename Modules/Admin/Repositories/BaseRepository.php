@@ -2,40 +2,23 @@
 
 namespace Modules\Admin\Repositories;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
-
-/**
- * Base repository.
- */
 abstract class BaseRepository implements RepositoryInterface
 {
-    /**
-     * @var $model
-     */
+    const WITH_TABLE     = false;
+    const LIMIT          = 0;
+    const LIMIT_PAGINATE = 25;
+
     protected $model;
 
-    /**
-     * Set model.
-     * @throws BindingResolutionException
-     */
     public function __construct()
     {
         $this->setModel();
     }
 
-    /**
-     * Model.
-     *
-     * @return mixed
-     */
-
     abstract public function model();
 
     /**
-     * Set model.
-     *
-     * @return void
-     * @throws BindingResolutionException
+     * Set model
      */
     public function setModel()
     {
@@ -44,94 +27,148 @@ abstract class BaseRepository implements RepositoryInterface
         );
     }
 
-    /**
-     * Get all.
-     *
-     * @return mixed
-     */
-    public function getAll($select = null)
+    public function findAll($conditions = [], $sort = [], $with = self::WITH_TABLE, $limit = self::LIMIT, $select = '', $lockForUpdate = false) //use "with" eager loading to avoid N+1 query
+
     {
-        return $select ? $this->model->select($select)->get() : $this->model->all();
+        $q = $this->model;
+
+        if (!empty($select)) {
+            $q = $q->select($select);
+        }
+
+        if (!empty($with)) {
+            $q = $q->with($with);
+        }
+
+        if (!empty($conditions)) {
+            $q = $q->where($conditions);
+        }
+
+        if (!empty($sort)) {
+            foreach ($sort as $column => $order) {
+                $q = $q->orderBy($column, $order);
+            }
+        }
+
+        if (!empty($limit)) {
+            $q = $q->limit($limit);
+        }
+
+        if (!empty($lockForUpdate)) {
+            $q = $q->lockForUpdate();
+        }
+
+        return $q->get();
     }
 
-    /**
-     * Find.
-     *
-     * @param $id
-     * @param $select
-     * @return mixed
-     */
-    public function find($id, $select = null)
+    public function paginate($conditions = [], $sort = [], $limit = self::LIMIT_PAGINATE, $with = self::WITH_TABLE, $select = '')
     {
-        return $select ? $this->model->select($select)->find($id) : $this->model->find($id);
+        $q = $this->model;
+
+        if (!empty($select)) {
+            $q = $q->select($select);
+        }
+
+        if (!empty($with)) {
+            $q = $q->with($with);
+        }
+
+        if (!empty($conditions)) {
+            $q = $q->where($conditions);
+        }
+
+        if (!empty($sort)) {
+            foreach ($sort as $column => $order) {
+                $q = $q->orderBy($column, $order);
+            }
+        }
+
+        return $q->paginate($limit);
     }
 
-    /**
-     * Create.
-     *
-     * @param array $attributes
-     * @return mixed
-     */
-    public function create(array $attributes = [])
+    public function findOne($conditions = [], $latest = false, $select = '', $lockForUpdate = false, $with = self::WITH_TABLE)
     {
+        $q = $this->model;
+
+        if (!empty($select)) {
+            $q = $q->select($select);
+        }
+
+        if (!empty($with)) {
+            $q = $q->with($with);
+        }
+
+        if (is_array($conditions)) {
+            if (!empty($lockForUpdate)) {
+                // Ngăn chặn bị race condition trùng lặp dữ liệu khi insert mà chưa check xong
+                return $latest ? $q->where($conditions)->latest()->lockForUpdate()->first() : $q->where($conditions)->lockForUpdate()->first();
+            } else {
+                return $latest ? $q->where($conditions)->latest()->first() : $q->where($conditions)->first();
+            }
+        }
+
+        return $q->find($conditions);
+    }
+
+    public function create($attributes = [], $multiple = false)
+    {
+        if ($multiple) {
+            return $this->model->insert($attributes);
+        }
+
         return $this->model->create($attributes);
     }
 
-    /**
-     * insert.
-     *
-     * @param array $attributes
-     * @return mixed
-     */
-    public function insert(array $attributes = [])
+    public function update($conditions = [], $attributes = [])
     {
-        return $this->model->insert($attributes);
+        return $this->model->where($conditions)->update($attributes);
     }
 
-    /**
-     * Update.
-     *
-     * @param $id
-     * @param array $attributes
-     * @return false|mixed
-     */
-    public function update($id, array $attributes = [])
+    public function delete($id = [])
     {
-        $result = $this->find($id);
-        if ($result) {
-            $result->update($attributes);
-            return $result;
+        if (is_array($id)) {
+            return $this->model->whereIn('id', $id)->update(['status' => 0]);
         }
 
-        return false;
+        return $this->model->where('id', $id)->update(['status' => 0]);
     }
 
-    /**
-     * Update.
-     *
-     * @param array $condition
-     * @param array $attributes
-     * @return false|mixed
-     */
-    public function updateOrCreate(array $condition, array $attributes = [])
+    public function forceDelete($conditions = [])
     {
-        return $this->model->updateOrCreate($condition, $attributes);
+        return $this->model->where($conditions)->delete();
     }
 
-    /**
-     * Delete.
-     *
-     * @param $id
-     * @return bool
-     */
-    public function delete($id): bool
+    public function count($conditions = [], $field_count = '*')
     {
-        $result = $this->find($id);
-        if ($result) {
-            $result->delete();
-            return true;
+        return $this->model->where($conditions)->count($field_count);
+    }
+
+    public function sum($conditions = [], $field_count = '*')
+    {
+        return $this->model->where($conditions)->sum($field_count);
+    }
+
+    public function updateOrCreate($unique = [], $attributes = [], $isForce = false)
+    {
+        if ($isForce) {
+            $checkExists = $this->model->where($unique)->first();
+            if (!empty($checkExists)) {
+                return $this->model->where($unique)->update($attributes);
+            } else {
+                return $this->model->create($attributes);
+            }
         }
 
-        return false;
+        return $this->model->updateOrCreate($unique, $attributes);
+    }
+
+    public function setConnection($connection)
+    {
+        $this->model->setConnection($connection);
+    }
+
+    public function decrement($conditions = [], $field, $number)
+    {
+        return $this->model->where($conditions)->decrement($field, $number);
     }
 }
