@@ -14,7 +14,15 @@ use Modules\Admin\Http\Controllers\AuthController;
 |
 */
 Route::group(['prefix' => 'v1'], function () {
+
+    // AUTHENTICATION ROUTES
     Route::group(['prefix' => 'auth'], function () {
-        Route::get('/login', [AuthController::class, 'index']);
+        Route::post('login', [AuthController::class, 'login']);
+
+        Route::middleware(['admin.auth'])->group(function () {
+            Route::post('logout', [AuthController::class, 'logout']);
+            Route::post('refresh', [AuthController::class, 'refresh']);
+            Route::get('me', [AuthController::class, 'me']);
+        });
     });
 });

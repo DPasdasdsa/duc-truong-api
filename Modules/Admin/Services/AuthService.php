@@ -2,8 +2,9 @@
 
 namespace Modules\Admin\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Modules\Admin\Http\Resources\User\UserResource;
-use Modules\Admin\Repositories\User\UserRepositoryInterface;
+use Modules\Admin\Repositories\Admin\AdminRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthService extends BaseService
@@ -18,19 +19,77 @@ class AuthService extends BaseService
 
     public function repository(): string
     {
-        return UserRepositoryInterface::class;
+        return AdminRepositoryInterface::class;
     }
 
     /**
-     * Index.
-     *
+     * @param array $credentials
      * @return Response
      */
-    public function index(): Response
+    public function login(array $credentials): Response
     {
+        if (!$token = Auth::guard('admin')->attempt($credentials)) {
+            $code = STATUS_CODE['UNAUTHORIZED'] ?? 401;
+            return $this->makeErrorResponse($code, 'Unauthorized. Email hoặc mật khẩu không chính xác.');
+        }
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * @param string $token
+     * @return Response
+     */
+    protected function respondWithToken(string $token): Response
+    {
+        $admin = Auth::guard('admin')->user();
+
+        $data = [
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => Auth::guard('admin')->factory()->getTTL() * 60 * 60 * 24*30,
+            'user' =>  Auth::guard('admin')->user(),
+        ];
+
         return $this->makeSuccessResponse(
-            STATUS_CODE['SUCCESS'],
-            new UserResource([])
+            STATUS_CODE['SUCCESS'] ?? 200,
+            $data,
+            'Login successful.'
         );
     }
+
+    /**
+     * @return Response
+     */
+    public function me(): Response
+    {
+        $admin = Auth::guard('admin')->user();
+
+        return $this->makeSuccessResponse(
+            STATUS_CODE['SUCCESS'] ?? 200,
+            $admin,
+            'User profile retrieved successfully.'
+        );
+    }
+
+
+    public function logout(): Response
+    {
+        Auth::guard('admin')->logout();
+        return $this->makeSuccessResponse(
+            STATUS_CODE['SUCCESS'] ?? 200,
+            null,
+            'Successfully logged out.'
+        );
+    }
+
+    /**
+     * @return Response
+     */
+    public function refresh(): Response
+    {
+        $token = Auth::guard('admin')->refresh();
+        return $this->respondWithToken($token);
+    }
+
+
 }
