@@ -19,10 +19,19 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group(['prefix' => 'auth'], function () {
         Route::post('login', [AuthController::class, 'login']);
 
-        Route::middleware(['admin.auth'])->group(function () {
+        Route::middleware(['auth:admin'])->group(function () {
             Route::post('logout', [AuthController::class, 'logout']);
             Route::post('refresh', [AuthController::class, 'refresh']);
             Route::get('me', [AuthController::class, 'me']);
+
         });
     });
+
+    Route::middleware(['auth:admin'])->group(function () {
+        // Employee.
+        Route::resource('employees', 'EmployeeController')->only([
+            'index', 'store', 'show', 'update', 'destroy'
+        ]);
+    });
+
 });

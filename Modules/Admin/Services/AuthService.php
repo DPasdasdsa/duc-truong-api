@@ -3,7 +3,6 @@
 namespace Modules\Admin\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Modules\Admin\Http\Resources\User\UserResource;
 use Modules\Admin\Repositories\Admin\AdminRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -47,7 +46,7 @@ class AuthService extends BaseService
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => Auth::guard('admin')->factory()->getTTL() * 60 * 60 * 24*30,
-            'user' =>  Auth::guard('admin')->user(),
+            'user' =>  $admin,
         ];
 
         return $this->makeSuccessResponse(
