@@ -38,10 +38,8 @@ abstract class BaseService
     public function makeErrorResponse(int $code, string $message): Response
     {
         $response = [
-            'status' => [
-                'code' => $code,
-                'message' => $message
-            ],
+            'code' => $code,
+            'message' => $message
         ];
         return new JsonResponse($response, $code);
     }
@@ -57,10 +55,8 @@ abstract class BaseService
     public function makeSuccessResponse(int $code, $data = null, string $message = null): Response
     {
         $response = [
-            'status' => [
-                'code' => $code,
-                'message' => $message
-            ],
+            'code' => $code,
+            'message' => $message
         ];
         if ($data) {
             $response['data'] = $data;

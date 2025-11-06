@@ -3,6 +3,8 @@
 namespace Modules\Admin\Services;
 
 use Exception;
+use Illuminate\Support\Str;
+use Modules\Admin\Constants\Constant;
 use Modules\Admin\Repositories\Employee\EmployeeRepositoryInterface;
 use Modules\Admin\Transformers\Employee\EmployeeResource;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,10 +33,18 @@ class EmployeeService extends BaseService
     public function index($request): Response
     {
         try {
-            $employees = $this->repository->paginate([], [], 10);
+            $subQuery = function ($q) use ($request) {
+                if(!empty($request->keyword)) {
+                    $q->where('name', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('phone', 'like', '%' . $request->keyword . '%');
+                }
+                return $q;
+            };
+
+            $employees = $this->repository->paginate($subQuery, [], Constant::LIMIT_ITEM);
             return $this->makeSuccessResponse(
                 STATUS_CODE['SUCCESS'], // 200
-                EmployeeResource::collection($employees),
+                new EmployeeResource($employees),
                 'Lấy danh sách nhân viên thành công.'
             );
         } catch (Exception $e) {
@@ -53,11 +63,12 @@ class EmployeeService extends BaseService
     public function store(array $attributes): Response
     {
         try {
+            $attributes['code'] = Str::slug($attributes['name']);
             $employee = $this->repository->create($attributes);
-
             return $this->makeSuccessResponse(
                 STATUS_CODE['SUCCESS'],
-                new EmployeeResource($employee),
+                null,
+                'Thêm mới thành cong !'
             );
         } catch (Exception $e) {
             return $this->makeErrorResponse(
@@ -85,7 +96,7 @@ class EmployeeService extends BaseService
 
         return $this->makeSuccessResponse(
             STATUS_CODE['SUCCESS'],
-            new EmployeeResource($employee)
+            $employee
         );
     }
 
@@ -108,12 +119,10 @@ class EmployeeService extends BaseService
 
         try {
             $this->repository->update(['id' => $id], $attributes);
-            // Lấy lại bản ghi đã cập nhật
-            $updatedEmployee = $this->repository->findOne(['id' => $id]);
 
             return $this->makeSuccessResponse(
                 STATUS_CODE['SUCCESS'], // 200
-                new EmployeeResource($updatedEmployee),
+                null,
                 'Cập nhật nhân viên thành công.'
             );
         } catch (Exception $e) {

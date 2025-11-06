@@ -17,7 +17,7 @@ class CreateEmployees extends Migration
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->string('phone')->nullable();
+            $table->string('phone')->unique()->nullable();
             $table->enum('role', ['driver', 'assistant'])->nullable();
             $table->tinyInteger('status')->default(0);
             $table->timestamps();

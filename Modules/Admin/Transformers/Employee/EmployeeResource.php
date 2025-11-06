@@ -14,16 +14,27 @@ class EmployeeResource extends JsonResource
      */
     public function toArray($request): array
     {
-        // Chú ý: $this ở đây là instance của Employee Model
+        $data = [];
+        foreach ($this->resource as $val) {
+            $data[] = [
+                'id' => $val->id,
+                'name' => $val->name,
+                'code' => $val->code,
+                'phone' => $val->phone,
+                'role' => $val->role,
+                'status' => $val->status,
+                'created_at' => $val->created_at->format(' H:i:s d-m-Y'),
+            ];
+        }
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'code' => $this->code,
-            'phone' => $this->phone,
-            'role' => $this->role,
-            'status' => $this->status,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'data' => $data,
+            'meta' => [
+                'current_page' => $this->resource->currentPage(),
+                'total_page' => $this->resource->lastPage(),
+                'total' => $this->resource->total(),
+                'perPage' => $this->resource->perPage(),
+            ]
         ];
+
     }
 }

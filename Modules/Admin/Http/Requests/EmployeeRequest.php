@@ -17,10 +17,9 @@ class EmployeeRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:employees,code,' . $employeeId,
-            'phone' => 'nullable|string|max:20',
+            // Trường 'phone' unique, required , loại trừ bản ghi hiện tại khi cập nhật
+            'phone' => 'required|string|max:20|unique:employees,phone,' . $employeeId,
             'role' => 'required|in:driver,assistant',
-            'status' => 'required|integer|in:0,1',
         ];
     }
 
