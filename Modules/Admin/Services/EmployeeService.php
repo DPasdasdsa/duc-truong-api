@@ -34,6 +34,9 @@ class EmployeeService extends BaseService
     {
         try {
             $subQuery = function ($q) use ($request) {
+                if(!empty($request->role)) {
+                    $q->where('role', $request->role);
+                }
                 if(!empty($request->keyword)) {
                     $q->where('name', 'like', '%' . $request->keyword . '%')
                     ->orWhere('phone', 'like', '%' . $request->keyword . '%');
