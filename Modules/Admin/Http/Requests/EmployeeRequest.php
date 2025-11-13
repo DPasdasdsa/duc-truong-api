@@ -20,6 +20,7 @@ class EmployeeRequest extends FormRequest
             // Trường 'phone' unique, required , loại trừ bản ghi hiện tại khi cập nhật
             'phone' => 'required|string|max:20|unique:employees,phone,' . $employeeId,
             'role' => 'required|in:driver,assistant',
+            'status' => 'required'
         ];
     }
 

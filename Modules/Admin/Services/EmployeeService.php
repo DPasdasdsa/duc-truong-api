@@ -44,7 +44,7 @@ class EmployeeService extends BaseService
                 return $q;
             };
 
-            $employees = $this->repository->paginate($subQuery, [], Constant::LIMIT_ITEM);
+            $employees = $this->repository->paginate($subQuery, ['id' => 'DESC'], Constant::LIMIT_ITEM);
             return $this->makeSuccessResponse(
                 STATUS_CODE['SUCCESS'], // 200
                 new EmployeeResource($employees),
@@ -121,6 +121,7 @@ class EmployeeService extends BaseService
         }
 
         try {
+
             $this->repository->update(['id' => $id], $attributes);
 
             return $this->makeSuccessResponse(

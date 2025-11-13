@@ -28,8 +28,8 @@ class AuthService extends BaseService
     public function login(array $credentials): Response
     {
         if (!$token = Auth::guard('admin')->attempt($credentials)) {
-            $code = STATUS_CODE['UNAUTHORIZED'] ?? 401;
-            return $this->makeErrorResponse($code, 'Unauthorized. Email hoặc mật khẩu không chính xác.');
+            $code = STATUS_CODE['BAD_REQUEST'] ?? 401;
+            return $this->makeErrorResponse($code, 'Email hoặc mật khẩu không chính xác.');
         }
         return $this->respondWithToken($token);
     }
