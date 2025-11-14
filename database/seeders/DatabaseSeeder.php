@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         $this->call([
-           AddAdminSeeder::class
+//           AddAdminSeeder::class,
+//            VehicleSeeder::class,
+//            EmployeeSeeder::class,
+            RouteSeeder::class
         ]);
     }
 }

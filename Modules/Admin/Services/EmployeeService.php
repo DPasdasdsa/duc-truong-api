@@ -67,11 +67,11 @@ class EmployeeService extends BaseService
     {
         try {
             $attributes['code'] = Str::slug($attributes['name']);
-            $employee = $this->repository->create($attributes);
+             $this->repository->create($attributes);
             return $this->makeSuccessResponse(
                 STATUS_CODE['SUCCESS'],
                 null,
-                'Thêm mới thành cong !'
+                'Thêm mới thành công !'
             );
         } catch (Exception $e) {
             return $this->makeErrorResponse(

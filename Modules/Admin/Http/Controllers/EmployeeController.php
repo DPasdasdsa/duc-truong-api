@@ -18,6 +18,10 @@ class EmployeeController extends Controller
     }
 
 
+    /**
+     * @param Request $request
+     * @return Response
+     */
     public function index(Request $request):Response
     {
         return $this->employeeService->index($request);

@@ -1,0 +1,102 @@
+[
+    {
+        "id": 1,
+        "name": "Sài Gòn → Vũng Tàu",
+        "code": "SGVG",
+        "departure_location": "TP.HCM",
+        "arrival_location": "Vũng Tàu",
+        "distance_km": 120,
+        "created_at": "2024-10-25 08:30:00",
+        "updated_at": "2024-10-25 08:30:00"
+    },
+    {
+        "id": 2,
+        "name": "Hà Nội → Hải Phòng",
+        "code": "HNHP",
+        "departure_location": "Hà Nội",
+        "arrival_location": "Hải Phòng",
+        "distance_km": 105,
+        "created_at": "2024-10-25 09:00:00",
+        "updated_at": "2024-10-25 09:00:00"
+    },
+    {
+        "id": 3,
+        "name": "Đà Nẵng → Hội An",
+        "code": "DNHA",
+        "departure_location": "Đà Nẵng",
+        "arrival_location": "Hội An",
+        "distance_km": 30,
+        "created_at": "2024-10-26 10:15:00",
+        "updated_at": "2024-10-26 10:15:00"
+    },
+    {
+        "id": 4,
+        "name": "TP.HCM → Cần Thơ",
+        "code": "SGCT",
+        "departure_location": "TP.HCM",
+        "arrival_location": "Cần Thơ",
+        "distance_km": 170,
+        "created_at": "2024-10-27 14:00:00",
+        "updated_at": "2024-10-27 14:00:00"
+    },
+    {
+        "id": 5,
+        "name": "Hà Nội → Lào Cai",
+        "code": "HNLC",
+        "departure_location": "Hà Nội",
+        "arrival_location": "Lào Cai",
+        "distance_km": 290,
+        "created_at": "2024-10-28 07:45:00",
+        "updated_at": "2024-10-28 07:45:00"
+    },
+    {
+        "id": 6,
+        "name": "Nha Trang → Đà Lạt",
+        "code": "NTDL",
+        "departure_location": "Nha Trang",
+        "arrival_location": "Đà Lạt",
+        "distance_km": 135,
+        "created_at": "2024-10-28 11:20:00",
+        "updated_at": "2024-10-28 11:20:00"
+    },
+    {
+        "id": 7,
+        "name": "Huế → Quảng Trị",
+        "code": "HUQT",
+        "departure_location": "Huế",
+        "arrival_location": "Quảng Trị",
+        "distance_km": 100,
+        "created_at": "2024-10-29 16:00:00",
+        "updated_at": "2024-10-29 16:00:00"
+    },
+    {
+        "id": 8,
+        "name": "Hà Nội → Vinh",
+        "code": "HNVN",
+        "departure_location": "Hà Nội",
+        "arrival_location": "Vinh",
+        "distance_km": 300,
+        "created_at": "2024-10-30 06:30:00",
+        "updated_at": "2024-10-30 06:30:00"
+    },
+    {
+        "id": 9,
+        "name": "Cần Thơ → Kiên Giang",
+        "code": "CTKG",
+        "departure_location": "Cần Thơ",
+        "arrival_location": "Kiên Giang",
+        "distance_km": 95,
+        "created_at": "2024-10-31 12:40:00",
+        "updated_at": "2024-10-31 12:40:00"
+    },
+    {
+        "id": 10,
+        "name": "Quảng Ninh → Hà Nội",
+        "code": "QNHN",
+        "departure_location": "Quảng Ninh",
+        "arrival_location": "Hà Nội",
+        "distance_km": 160,
+        "created_at": "2024-11-01 18:00:00",
+        "updated_at": "2024-11-01 18:00:00"
+    }
+]

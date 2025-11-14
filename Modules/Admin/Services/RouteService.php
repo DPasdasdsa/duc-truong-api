@@ -2,7 +2,11 @@
 
 namespace Modules\Admin\Services;
 
+use Exception;
+use Illuminate\Support\Str;
+use Modules\Admin\Constants\Constant;
 use Modules\Admin\Repositories\Route\RouteRepositoryInterface;
+use Modules\Admin\Transformers\Route\RouteResource;
 use Symfony\Component\HttpFoundation\Response;
 
 class RouteService extends BaseService
@@ -18,6 +22,146 @@ class RouteService extends BaseService
     public function repository(): string
     {
         return RouteRepositoryInterface::class;
+    }
+
+    /**
+     *
+     * @param $request
+     * @return Response
+     */
+    public function index($request): Response
+    {
+        try {
+            $subQuery = function ($q) use ($request) {
+                if(!empty($request->keyword)) {
+                    $q->where('name', 'like', '%' . $request->keyword . '%');
+                }
+                return $q;
+            };
+
+            $routes = $this->repository->paginate($subQuery, ['id' => 'DESC'], Constant::LIMIT_ITEM);
+            return $this->makeSuccessResponse(
+                STATUS_CODE['SUCCESS'], // 200
+                new RouteResource($routes),
+                'Lấy danh sách tuyến thành công.'
+            );
+        } catch (Exception $e) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['SERVER_ERROR'],
+                'Lỗi hệ thống: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     *
+     * @param array $attributes
+     * @return Response
+     */
+    public function store(array $attributes): Response
+    {
+        try {
+            $attributes['code'] = Str::slug($attributes['name']);
+            $this->repository->create($attributes);
+            return $this->makeSuccessResponse(
+                STATUS_CODE['SUCCESS'],
+                null,
+                'Thêm mới thành công !'
+            );
+        } catch (Exception $e) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['SERVER_ERROR'],
+                'Lỗi hệ thống: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function show(int $id): Response
+    {
+        $employee = $this->repository->findOne(['id' => $id]);
+
+        if (empty($employee)) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['NOT_FOUND'],
+                'Không tìm thấy tuyến.'
+            );
+        }
+
+        return $this->makeSuccessResponse(
+            STATUS_CODE['SUCCESS'],
+            $employee
+        );
+    }
+
+    /**
+     *
+     * @param int $id
+     * @param array $attributes
+     * @return Response
+     */
+    public function update(int $id, array $attributes): Response
+    {
+        $check = $this->repository->findOne(['id' => $id]);
+
+        if (empty($check)) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['NOT_FOUND'], // 404
+                'Không tìm thấy tuyến cần cập nhật.'
+            );
+        }
+
+        try {
+
+            $this->repository->update(['id' => $id], $attributes);
+
+            return $this->makeSuccessResponse(
+                STATUS_CODE['SUCCESS'], // 200
+                null,
+                'Cập nhật tuyến thành công.'
+            );
+        } catch (Exception $e) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['SERVER_ERROR'], // 500
+                'Lỗi hệ thống: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function destroy(int $id): Response
+    {
+        $check = $this->repository->findOne(['id' => $id]);
+
+        if (empty($check)) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['NOT_FOUND'],
+                'Không tìm thấy tuyến cần xóa.'
+            );
+        }
+
+        try {
+            $this->repository->forceDelete(['id' => $id]);
+
+            return $this->makeSuccessResponse(
+                STATUS_CODE['SUCCESS'],
+                null,
+                'Xóa tuyến thành công.'
+            );
+        } catch (Exception $e) {
+            return $this->makeErrorResponse(
+                STATUS_CODE['SERVER_ERROR'], // 500
+                'Lỗi hệ thống: ' . $e->getMessage()
+            );
+        }
     }
 
 }

@@ -28,8 +28,17 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware(['auth:admin'])->group(function () {
+
         // Employee.
         Route::resource('employees', 'EmployeeController')->only([
+            'index', 'store', 'show', 'update', 'destroy'
+        ]);
+        // Vehicles.
+        Route::resource('vehicles', 'VehicleController')->only([
+            'index', 'store', 'show', 'update', 'destroy'
+        ]);
+        // Routes.
+        Route::resource('routes', 'RouteController')->only([
             'index', 'store', 'show', 'update', 'destroy'
         ]);
     });
